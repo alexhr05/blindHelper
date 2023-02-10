@@ -1,4 +1,2 @@
 # blindHelper
-app which help blind people to find the object they want and navigate them.
-
-dsa
+App which helps blind people find the object they are looking for and navigates them to it.
