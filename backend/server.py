@@ -425,10 +425,14 @@ class MyServer(BaseHTTPRequestHandler):
             if key:
                 word = general[key]
 
-        nparr = np.fromstring(post_body, np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            nparr = np.fromstring(post_body, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        response = detect(img,word,lang)
+            response = detect(img,word,lang)
+        elif lang == "en":
+            response = "Not an recognisable object. Try looking for something else"
+        elif lang == "bg":
+            response = "Обектът не може да бъде разпознат. Опитайте да потърсите нещо друго"
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
