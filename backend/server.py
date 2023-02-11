@@ -1,4 +1,5 @@
 import json
+import urllib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from requests_toolbelt.multipart import decoder
 import numpy as np
@@ -25,8 +26,143 @@ from utils.augmentations import (letterbox)
 from utils.general import (Profile, check_img_size, non_max_suppression, scale_boxes, strip_optimizer, xyxy2xywh)
 from utils.torch_utils import select_device, smart_inference_mode
 
-hostName = "127.0.0.1"
-serverPort = 8080
+hostName = "localhost"
+serverPort = 80
+general = {
+    "пожарни кран": "fire hydrant",
+    "знака стоп": "stop sign",
+    "дамски чант": "handbag",
+    "спортни топк": "sports ball",
+    "бейзболни бухалк": "baseball bat",
+    "бейзболни ръкавиц": "baseball glove",
+    "дъски за сърф": "surfboard",
+    "чаши за вино": "wine glass",
+    "растения в сакс": "potted plant",
+    "маси за хранене": "dining table",
+    "плюшени мече": "teddy bear",
+    "четки за зъби": "toothbrush",
+
+    "човек": "person",
+    "хора": "person",
+
+    "колел": "bicycle",
+    "велосипед": "bicycle",
+
+    "автомобил": "car",
+    "кол": "car",
+
+    "мотоциклет": "motorcycle",
+    "мотор": "motorcycle",
+
+    "самолет": "airplane",
+    "автобус": "bus",
+    "влак": "train",
+    "камион": "truck",
+
+    "лодк": "boat",
+    "кораб": "boat",
+
+    "светофар": "traffic light",
+
+    "пожарен хидрант": "fire hydrant",
+    "пожарен кран": "fire hydrant",
+
+    "знак за спиране": "stop sign",
+    "знак стоп": "stop sign",
+
+    "паркинг метър": "parking meter",
+    "пейк": "bench",
+    "птиц": "bird",
+    "котк": "cat",
+    "куче": "dog",
+    "кон": "horse",
+    "овц": "sheep",
+    "крав": "cow",
+    "слон": "elephant",
+    "мечк": "bear",
+    "зебр": "zebra",
+    "жираф": "giraffe",
+    "раниц": "backpack",
+    "чадър": "umbrella",
+
+    "чант": "handbag",
+    "торб": "handbag",
+
+    "вратовръзк": "tie",
+    "куфар": "suitcase",
+    "фризби": "frisbee",
+    "ски": "skis",
+    "сноуборд": "snowboard",
+    "спортна топка": "sports ball",
+    "хвърчил": "kite",
+    "бейзболна бухалка": "baseball bat",
+    "бейзболна ръкавица": "baseball glove",
+    "скейтборд": "skateboard",
+
+    "дъска за сърф": "surfboard",
+    "сърф дъск": "surfboard",
+
+    "ракета за тенис": "tennis racket",
+    "тенис ракет": "tennis racket",
+
+    "бутилк": "bottle",
+    "шише": "bottle",
+
+    "чаша за вино": "wine glass",
+    "чаш": "cup",
+    "вилиц": "fork",
+    "нож": "knife",
+    "лъжиц": "spoon",
+    "куп": "bowl",
+    "банан": "banana",
+    "ябълк": "apple",
+    "сандвич": "sandwich",
+    "портокал": "orange",
+    "броколи": "broccoli",
+    "морков": "carrot",
+    "хот-дог": "hot dog",
+    "хот дог": "hot dog",
+    "пиц": "pizza",
+
+    "поничк": "donut",
+    "донът": "donut",
+
+    "торт": "cake",
+    "стол": "chair",
+    "диван": "couch",
+    "растение в саксия": "potted plant",
+
+    "легл": "bed",
+    "креват": "bed",
+
+    "маса за хранене": "dining table",
+    "тоалетн": "toilet",
+
+    "телевизор": "tv",
+    "монитор": "tv",
+
+    "лаптоп": "laptop",
+    "мишк": "mouse",
+
+    "дистанционно на телевизор": "remote",
+    "клавиатур": "keyboard",
+
+    "мобилен телефон": "cell phone",
+    "телефон": "cell phone",
+
+    "микровълнова печк": "microwave",
+    "фурн": "oven",
+    "тостер": "toaster",
+    "мивк": "sink",
+    "хладилник": "refrigerator",
+    "книг": "book",
+    "часовник": "clock",
+    "ваз": "vase",
+    "ножиц": "scissors",
+    "плюшено мече": "teddy bear",
+    "сешоар за коса": "hair drier",
+    "четка за зъби": "toothbrush",
+}
 
 #INItialization
 
@@ -155,6 +291,11 @@ class MyServer(BaseHTTPRequestHandler):
         query_components = dict(qc.split("=") for qc in query.split("&"))
         word = query_components["word"]
         lang = query_components["lang"]
+        word = urllib.parse.unquote(word)
+        if any(key in word for key in general):
+            key = next((key for key in general if key in word), None)
+            if key:
+                word = general[key]
 
         nparr = np.fromstring(post_body, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -163,7 +304,6 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        response = json.dumps(response)
         self.wfile.write(bytes(response ,"utf-8"))
         # self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
 
@@ -178,4 +318,4 @@ if __name__ == "__main__":
 
     webServer.server_close()
     print("Server stopped.")
-    
+
