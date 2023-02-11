@@ -162,6 +162,134 @@ general = {
     "плюшено мече": "teddy bear",
     "сешоар за коса": "hair drier",
     "четка за зъби": "toothbrush",
+
+    "person":"person",
+    "human":"person",
+
+    "bicycle": "bicycle",
+    "bike": "bicycle",
+
+    "car": "car",
+    "automobile": "car",
+    "vehicle": "car",
+
+    "motorcycle": "motorcycle",
+    "motorbike": "motorcycle",
+
+    "plane": "airplane",
+    "aircraft": "airplane",
+
+    "bus": "bus",
+    "train": "train",
+    "locomotive": "train",
+
+    "truck": "truck",
+    "lorry": "truck",
+
+    "boat": "boat",
+    "ship": "boat",
+
+    "traffic light": "traffic light",
+    "hydrant": "fire hydrant",
+    "stop sign": "stop sign",
+    "parking meter": "parking meter",
+    "bench": "bench",
+    "bird": "bird",
+    "cat": "cat",
+    "dog": "dog",
+    "horse": "horse",
+
+    "sheep": "sheep",
+    "lamb": "sheep",
+
+    "cow": "cow",
+    "elephant": "elephant",
+    "bear": "bear",
+    "zebra": "zebra",
+    "giraffe": "giraffe",
+    "backpack": "backpack",
+    "umbrella": "umbrella",
+    "handbag": "handbag",
+    "tie": "tie",
+
+    "suitcase": "suitcase",
+    "luggage": "suitcase",
+
+    "frisbee": "frisbee",
+    "flying disc": "frisbee",
+
+    "skis": "skis",
+    "snowboard": "snowboard",
+    "ball": "sports ball",
+    "kite": "kite",
+    "baseball bat": "baseball bat",
+    "baseball glove": "baseball glove",
+    "skateboard": "skateboard",
+    "surfboard": "surfboard",
+    "racket":"tennis racket",
+    "bottle": "bottle",
+    "wine glass": "wine glass",
+
+    "cup": "cup",
+    "glass": "cup",
+
+    "fork": "fork",
+    "knife": "knife",
+    "spoon": "spoon",
+    "bowl": "bowl",
+    "banana": "banana",
+    "apple": "apple",
+    "sandwich": "sandwich",
+    "orange": "orange",
+    "broccoli": "broccoli",
+    "carrot": "carrot",
+    "hot dog": "hot dog",
+    "pizza": "pizza",
+
+    "donut": "donut",
+    "doughnut": "donut",
+
+    "cake": "cake",
+
+    "chair": "chair",
+    "seat": "chair",
+
+    "couch": "couch",
+    "plant": "potted plant",
+    "bed": "bed",
+    "dining table": "dining table",
+    "toilet": "toilet",
+
+    "tv": "tv",
+    "television": "tv",
+
+    "laptop": "laptop",
+    "mouse": "mouse",
+    "remote": "remote",
+    "keyboard": "keyboard",
+    "cell phone": "cell phone",
+    "microwave": "microwave",
+    "oven": "oven",
+    "toaster": "toaster",
+    "sink": "sink",
+
+    "refrigerator": "refrigerator",
+    "fridge": "refrigerator",
+
+    "book": "book",
+    "clock": "clock",
+    "vase": "vase",
+
+    "scissors": "scissors",
+    "shears": "scissors",
+
+    "teddy bear": "teddy bear",
+
+    "hair drier": "hair drier",
+    "blow dryer": "hair drier",
+    "hair blower": "hair drier",
+
+    "toothbrush": "toothbrush"
 }
 
 #INItialization
