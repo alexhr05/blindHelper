@@ -305,7 +305,7 @@ augment=False,  # augmented inference
 update=False,  # update all models
 
 # Load model
-weights='yolov5s.pt'  # model path or triton URL
+weights='yolov5x.pt'  # model path or triton URL
 data='data/coco128.yaml'  # dataset.yaml path
 imgsz=(640, 640)  # inference size (height, width)
 half=False  # use FP16 half-precision inference
@@ -321,7 +321,7 @@ def detect(
         image,
         word,
         lang,
-        weights=ROOT / 'yolov5s.pt',  # model path or triton URL
+        weights=ROOT / 'yolov5x.pt',  # model path or triton URL
         data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
         imgsz=(640, 640),  # inference size (height, width)
         conf_thres=0.25,  # confidence threshold
