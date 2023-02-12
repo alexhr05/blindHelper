@@ -29,6 +29,7 @@ from utils.torch_utils import select_device, smart_inference_mode
 hostName = "localhost"
 serverPort = 80
 general = {
+    "всичк":"all",
     "пожарни кран": "fire hydrant",
     "знака стоп": "stop sign",
     "дамски чант": "handbag",
@@ -163,6 +164,7 @@ general = {
     "сешоар за коса": "hair drier",
     "четка за зъби": "toothbrush",
 
+    "all":"all",
     "person":"person",
     "human":"person",
 

@@ -164,7 +164,7 @@ one = {
 }
 
 plural = {
-    "person":"човека",
+    "person":"хора",
     "bicycle":"колела",
     "car":"коли",
     "motorcycle":"мотоциклета",
@@ -248,21 +248,24 @@ plural = {
 
 def messageBG(arr, word):
     result = "Има "
-    objects = []
+    # objects = []
     if word == "all":
         if len(arr) == 0:
             return "Няма намерени обекти"
+        result += str(len(arr)) + " обекта намерени. "
         for det in arr:
-            if det[0] in objects:
-                continue
-            objects.append(det[0])
-            br = count(arr, det[0])
-            result += str(br) + " "
-            if br>1:
-                result += plural[det[0]]
-            else:
-                result += translate[det[0]]
-            result += ", "
+            result += one[det[0]] + " " + translate[det[0]] + " е "
+            result += pos(det)
+            # if det[0] in objects:
+            #     continue
+            # objects.append(det[0])
+            # br = count(arr, det[0])
+            # result += str(br) + " "
+            # if br>1:
+            #     result += plural[det[0]]
+            # else:
+            #     result += translate[det[0]]
+            # result += ", "
     else:
         if len(arr) == 0:
             return "Няма намерени " + plural[word]
@@ -270,51 +273,11 @@ def messageBG(arr, word):
         if br>1:
             result += str(br) + " " + plural[arr[0][0]] + " пред телефона. "
             for det in arr:
-                result += one[word]+" "
-                if det[1] == 0:
-                    result += "е вляво"
-                if det[1] == 1:
-                    result += "е леко вляво"
-                if det[1] == 2:
-                    result += "е по средата"
-                if det[1] == 3:
-                    result += "е леко вдясно"
-                if det[1] == 4:
-                    result += "е вдясно"
-
-                if det[2] == 0:
-                    result += " и горе. "
-                if det[2] == 1:
-                    result += " и леко нагоре. "
-                if det[2] == 2:
-                    result += ". "
-                if det[2] == 3:
-                    result += " и леко надолу. "
-                if det[2] == 4:
-                    result += " и долу. "
+                result += one[word]+" е "
+                result += pos(det)
         else:
             result += one[word] + " " + translate[arr[0][0]] + " намерен "
-            if arr[0][1] == 0:
-                result += "вляво"
-            if arr[0][1] == 1:
-                result += "леко вляво"
-            if arr[0][1] == 2:
-                result += "по средата"
-            if arr[0][1] == 3:
-                result += "леко вдясно"
-            if arr[0][1] == 4:
-                result += "вдясно"
-
-            if arr[0][2] == 0:
-                result += " и горе."
-            if arr[0][2] == 1:
-                result += " и леко нагоре."
-            if arr[0][2] == 2:
-                result += "."
-            if arr[0][2] == 3:
-                result += " и леко надолу."
-            if arr[0][2] == 4:
-                result += " и долу."
+            result += pos(arr[0])
 
     return result
 
@@ -324,3 +287,28 @@ def count(arr, word):
         if det[0] == word:
             br+=1
     return br
+
+def pos(det):
+    result = ""
+    if det[1] == 0:
+        result += "вляво"
+    if det[1] == 1:
+        result += "леко вляво"
+    if det[1] == 2:
+        result += "по средата"
+    if det[1] == 3:
+        result += "леко вдясно"
+    if det[1] == 4:
+        result += "вдясно"
+
+    if det[2] == 0:
+        result += " и горе. "
+    if det[2] == 1:
+        result += " и леко нагоре. "
+    if det[2] == 2:
+        result += ". "
+    if det[2] == 3:
+        result += " и леко надолу. "
+    if det[2] == 4:
+        result += " и долу. "
+    return result
