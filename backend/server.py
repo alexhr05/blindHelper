@@ -29,6 +29,8 @@ from utils.plots import Annotator, colors, save_one_box
 
 hostName = "localhost"
 serverPort = 80
+
+# Проверка на какво съответства дадения обект
 general = {
     "всичк":"all",
     "пожарни кран": "fire hydrant",
@@ -294,6 +296,8 @@ general = {
 
     "toothbrush": "toothbrush"
 }
+
+# Дефиниране на главната функция за разпознаване на обекти
 def detect(
         image,
         word,
@@ -314,91 +318,78 @@ def detect(
         update=False,  # update all models
 ):
     responseArray = []
-    if True:
+    # cv2.imshow('image', image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
-        # cv2.imshow('image', image)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+    bs = 1  # batch_size
 
-        start_time = time.time()
-        # Dataloader
-        bs = 1  # batch_size
+    # Зареждане на снимката и подготвяне на модела за обработка
+    model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
+    seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
+    im0 = image
+    im = letterbox(im0, imgsz, stride=stride, auto=pt)[0]  # padded resize
+    im = im.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
+    im = np.ascontiguousarray(im)  # contiguous
+    with dt[0]:
+        im = torch.from_numpy(im).to(model.device)
+        im = im.half() if model.fp16 else im.float()  # uint8 to fp16/32
+        im /= 255  # 0 - 255 to 0.0 - 1.0
+        if len(im.shape) == 3:
+            im = im[None]  # expand for batch dim
 
-        # Run inference
-        model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
-        seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
-        if True:
-            im0 = image
-            im = letterbox(im0, imgsz, stride=stride, auto=pt)[0]  # padded resize
-            im = im.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
-            im = np.ascontiguousarray(im)  # contiguous
-            with dt[0]:
-                im = torch.from_numpy(im).to(model.device)
-                im = im.half() if model.fp16 else im.float()  # uint8 to fp16/32
-                im /= 255  # 0 - 255 to 0.0 - 1.0
-                if len(im.shape) == 3:
-                    im = im[None]  # expand for batch dim
+    # Разпознаване на обектите и запазване на информацията в pred
+    with dt[1]:
+        visualize = False
+        pred = model(im, augment=augment, visualize=visualize)
+    # NMS
+    pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
 
-            # Inference
-            with dt[1]:
-                visualize = False
-                pred = model(im, augment=augment, visualize=visualize)
-            # NMS
-            pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
+    # За всяка снимка в pred
+    for i, det in enumerate(pred):  # per image
+        seen += 1
+        annotator = Annotator(im0, line_width=3, example=str(names))
+        gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # нормализиране на дължината и широчината
+        if len(det):
+            # Rescale na кутиите от img_size към im0 size
+            det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
 
-            # Second-stage classifier (optional)
-            # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
+            # Обработване на резултатите
+            for *xyxy, conf, cls in reversed(det):
+                if (word == names[int(cls)]) or (word == "all"):
+                    xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # нормализирани xywh
+                    current = [(names[int(cls)])] # името на дадения обект
+                    current = get_position(xywh[0],xywh[1],current) # позицията на дадения обект
+                    responseArray.append(current) # масив със всеки разпознат обект и неговата позиция
 
-            # Process predictions
-            for i, det in enumerate(pred):  # per image
-                seen += 1
-                #print(det)
-                annotator = Annotator(im0, line_width=3, example=str(names))
+                    # DEBUG
+                    c = int(cls)  # integer class
+                    label = (f'{names[c]} {conf:.2f}')
+                    annotator.box_label(xyxy, label, color=colors(c, True))
 
-                # s += '%gx%g ' % im.shape[2:]  # print string
-                gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
-                if len(det):
-                    # Rescale boxes from img_size to im0 size
-                    det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
+    # DEBUG
+    scale_percent = 100
+    width = int(im0.shape[1] * scale_percent / 100)
+    height = int(im0.shape[0] * scale_percent / 100)
+    dsize = (width, height)
 
-                    # Print results
-                    for c in det[:, 5].unique():
-                        n = (det[:, 5] == c).sum()  # detections per class
-                        # s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-                    # Write results
-                    for *xyxy, conf, cls in reversed(det):
-                        if (word == names[int(cls)]) or (word == "all"):
-                            xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                            # response = {} = get_position(xywh[0],xywh[1])
-                            current = [(names[int(cls)])]
-                            current = get_position(xywh[0],xywh[1],current)
-                            responseArray.append(current)
+    im0 = cv2.resize(im0, dsize)
+    cv2.imwrite(f"1.jpg", im0)
 
-                            c = int(cls)  # integer class
-                            label = (f'{names[c]} {conf:.2f}')
-                            annotator.box_label(xyxy, label, color=colors(c, True))
+    if update:
+        strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
+    if lang == "en":
+        response = messageEN(responseArray, word) # Връщане на резултат на англииски
+    elif lang == "bg":
+        response = messageBG(responseArray, word) # Връщане на резултат на български
 
-            # Stream results
-            scale_percent = 100
-            width = int(im0.shape[1] * scale_percent / 100)
-            height = int(im0.shape[0] * scale_percent / 100)
-            dsize = (width, height)
-
-            im0 = cv2.resize(im0, dsize)
-            cv2.imwrite(f"1.jpg", im0)
-
-        if update:
-            strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
-        if lang == "en":
-            response = messageEN(responseArray, word)
-        elif lang == "bg":
-            response = messageBG(responseArray, word)
-
-        return response
+    return response
 
 
 class MyServer(BaseHTTPRequestHandler):
+    # Post request
     def do_POST(self):
+        # Вземане на тялото на рекуеста и параметрите му
         content_length = int(self.headers['Content-Length'])
         post_body = self.rfile.read(content_length)
 
@@ -406,40 +397,44 @@ class MyServer(BaseHTTPRequestHandler):
         query_components = dict(qc.split("=") for qc in query.split("&"))
         word = query_components["word"]
         lang = query_components["lang"]
-        word = urllib.parse.unquote(word)
+        word = urllib.parse.unquote(word) # декодиране на думите на български
+
+        # Проверка дали обекта може да бъде разпознат
         if any(key in word for key in general):
             key = next((key for key in general if key in word), None)
             if key:
                 word = general[key]
 
+            # Декодиране на изпратената снимка
             nparr = np.fromstring(post_body, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-
+            # Генериране на отговор
             response = detect(img,word,lang,webServer.device,webServer.model,webServer.stride,webServer.names,webServer.pt,webServer.imgsz,webServer.weights)
         elif lang == "en":
             response = "Not an recognisable object. Try looking for something else"
         elif lang == "bg":
             response = "Обектът не може да бъде разпознат. Опитайте да потърсите нещо друго"
+
+        # Връщане на отговор
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
         self.wfile.write(bytes(response ,"utf-8"))
-        # self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
 
 if __name__ == "__main__":
 
     #init
-    conf_thres = 0.25,  # confidence threshold
+    conf_thres = 0.25,  # Минимална сигурност в разпознатия обект
     iou_thres = 0.45,  # NMS IOU threshold
-    max_det = 1000,  # maximum detections per image
+    max_det = 10,  # Най-много разпознавания на снимка
     classes = None,  # filter by class: --class 0, or --class 0 2 3
     agnostic_nms = False,  # class-agnostic NMS
     augment = False,  # augmented inference
     update = False,  # update all models
 
-    # Load model
-    weights = 'yolov5x.pt'  # model path or triton URL
+    # Зареждане на модела
+    weights = 'yolov5x.pt'  # Път към модела
     data = 'data/coco128.yaml'  # dataset.yaml path
     imgsz = (640, 640)  # inference size (height, width)
     half = False  # use FP16 half-precision inference
@@ -451,6 +446,7 @@ if __name__ == "__main__":
     stride, names, pt = model.stride, model.names, model.pt
     imgsz = check_img_size(imgsz, s=stride)  # check image size
 
+    # Създаване на сървъра и задаване на параметри в него
     webServer = HTTPServer((hostName, serverPort), MyServer)
     webServer.device = device
     webServer.model = model

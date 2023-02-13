@@ -1,6 +1,5 @@
 def messageEN(arr, word):
     result = "There "
-    # objects = []
     if word == "all":
         if len(arr) == 0:
             return "No objects found"
@@ -9,17 +8,6 @@ def messageEN(arr, word):
             for det in arr:
                 result += "One " + det[0] + " is "
                 result += pos(det)
-                # if det[0] in objects:
-                #     continue
-                # objects.append(det[0])
-                # br = count(arr, det[0])
-                # result += str(br) + " "
-                # if br>1:
-                #     result += plural(det[0])
-                # else:
-                #     result += det[0]
-                # result += ", "
-
         else:
             result += "is 1 "
             result += arr[0][0]
