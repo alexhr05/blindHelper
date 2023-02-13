@@ -47,15 +47,15 @@ def count(arr, word):
 
 def pos(det):
     result = ""
-    if det[1] == 4:
+    if det[1] == 0:
         result += "to the left"
-    if det[1] == 3:
+    if det[1] == 1:
         result += "slightly to the left"
     if det[1] == 2:
         result += "in the middle"
-    if det[1] == 1:
+    if det[1] == 3:
         result += "slightly to the right"
-    if det[1] == 0:
+    if det[1] == 4:
         result += "to the right"
 
     if det[2] == 0:

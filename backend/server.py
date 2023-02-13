@@ -25,6 +25,7 @@ from models.common import DetectMultiBackend
 from utils.augmentations import (letterbox)
 from utils.general import (Profile, check_img_size, non_max_suppression, scale_boxes, strip_optimizer, xyxy2xywh)
 from utils.torch_utils import select_device, smart_inference_mode
+from utils.plots import Annotator, colors, save_one_box
 
 hostName = "localhost"
 serverPort = 80
@@ -293,54 +294,26 @@ general = {
 
     "toothbrush": "toothbrush"
 }
-
-#INItialization
-
-conf_thres=0.25,  # confidence threshold
-iou_thres=0.45,  # NMS IOU threshold
-max_det=1000,  # maximum detections per image
-classes=None,  # filter by class: --class 0, or --class 0 2 3
-agnostic_nms=False,  # class-agnostic NMS
-augment=False,  # augmented inference
-update=False,  # update all models
-
-# Load model
-weights='yolov5x.pt'  # model path or triton URL
-data='data/coco128.yaml'  # dataset.yaml path
-imgsz=(640, 640)  # inference size (height, width)
-half=False  # use FP16 half-precision inference
-dnn=False  # use OpenCV DNN for ONNX inference
-device=''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-
-device = select_device(device)
-model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
-stride, names, pt = model.stride, model.names, model.pt
-imgsz = check_img_size(imgsz, s=stride)  # check image size
-
 def detect(
         image,
         word,
         lang,
-        weights=ROOT / 'yolov5x.pt',  # model path or triton URL
-        data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
-        imgsz=(640, 640),  # inference size (height, width)
+        device,
+        model,
+        stride,
+        names,
+        pt,
+        imgsz,
+        weights,
         conf_thres=0.25,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         classes=None,  # filter by class: --class 0, or --class 0 2 3
         agnostic_nms=False,  # class-agnostic NMS
         augment=False,  # augmented inference
         update=False,  # update all models
-        half=False,  # use FP16 half-precision inference
-        dnn=False,  # use OpenCV DNN for ONNX inference
 ):
     responseArray = []
-    # Load model
-    device = select_device(device)
-    model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
-    stride, names, pt = model.stride, model.names, model.pt
-    imgsz = check_img_size(imgsz, s=stride)  # check image size
     if True:
 
         # cv2.imshow('image', image)
@@ -380,6 +353,7 @@ def detect(
             for i, det in enumerate(pred):  # per image
                 seen += 1
                 #print(det)
+                annotator = Annotator(im0, line_width=3, example=str(names))
 
                 # s += '%gx%g ' % im.shape[2:]  # print string
                 gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
@@ -400,7 +374,18 @@ def detect(
                             current = get_position(xywh[0],xywh[1],current)
                             responseArray.append(current)
 
+                            c = int(cls)  # integer class
+                            label = (f'{names[c]} {conf:.2f}')
+                            annotator.box_label(xyxy, label, color=colors(c, True))
+
             # Stream results
+            scale_percent = 100
+            width = int(im0.shape[1] * scale_percent / 100)
+            height = int(im0.shape[0] * scale_percent / 100)
+            dsize = (width, height)
+
+            im0 = cv2.resize(im0, dsize)
+            cv2.imwrite(f"1.jpg", im0)
 
         if update:
             strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
@@ -430,7 +415,8 @@ class MyServer(BaseHTTPRequestHandler):
             nparr = np.fromstring(post_body, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-            response = detect(img,word,lang)
+
+            response = detect(img,word,lang,webServer.device,webServer.model,webServer.stride,webServer.names,webServer.pt,webServer.imgsz,webServer.weights)
         elif lang == "en":
             response = "Not an recognisable object. Try looking for something else"
         elif lang == "bg":
@@ -441,8 +427,38 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes(response ,"utf-8"))
         # self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
 
-if __name__ == "__main__":        
+if __name__ == "__main__":
+
+    #init
+    conf_thres = 0.25,  # confidence threshold
+    iou_thres = 0.45,  # NMS IOU threshold
+    max_det = 1000,  # maximum detections per image
+    classes = None,  # filter by class: --class 0, or --class 0 2 3
+    agnostic_nms = False,  # class-agnostic NMS
+    augment = False,  # augmented inference
+    update = False,  # update all models
+
+    # Load model
+    weights = 'yolov5x.pt'  # model path or triton URL
+    data = 'data/coco128.yaml'  # dataset.yaml path
+    imgsz = (640, 640)  # inference size (height, width)
+    half = False  # use FP16 half-precision inference
+    dnn = False  # use OpenCV DNN for ONNX inference
+    device = ''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+
+    device = select_device(device)
+    model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
+    stride, names, pt = model.stride, model.names, model.pt
+    imgsz = check_img_size(imgsz, s=stride)  # check image size
+
     webServer = HTTPServer((hostName, serverPort), MyServer)
+    webServer.device = device
+    webServer.model = model
+    webServer.stride = stride
+    webServer.names = names
+    webServer.pt = pt
+    webServer.imgsz = imgsz
+    webServer.weights = weights
     print("Server started http://%s:%s" % (hostName, serverPort))
 
     try:
