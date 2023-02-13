@@ -403,17 +403,17 @@ class MyServer(BaseHTTPRequestHandler):
             key = next((key for key in general if key in word), None)
             if key:
                 word = general[key]
+            if lang == "recognisable":
+                response = word
+            else:
+                # Декодиране на изпратената снимка
+                nparr = np.fromstring(post_body, np.uint8)
+                img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-            # Декодиране на изпратената снимка
-            nparr = np.fromstring(post_body, np.uint8)
-            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-            # Генериране на отговор
-            response = detect(img,word,lang,webServer.device,webServer.model,webServer.stride,webServer.names,webServer.pt,webServer.imgsz,webServer.weights)
-        elif lang == "en":
-            response = "Not an recognisable object. Try looking for something else"
-        elif lang == "bg":
-            response = "Обектът не може да бъде разпознат. Опитайте да потърсите нещо друго"
+                # Генериране на отговор
+                response = detect(img,word,lang,webServer.device,webServer.model,webServer.stride,webServer.names,webServer.pt,webServer.imgsz,webServer.weights)
+        else:
+            response = "False"
 
         # Връщане на отговор
         self.send_response(200)
