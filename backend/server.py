@@ -35,14 +35,10 @@ general = {
     "всичк":"all",
     "пожарни кран": "fire hydrant",
     "знака стоп": "stop sign",
-    "дамски чант": "handbag",
-    "спортни топк": "sports ball",
     "бейзболни бухалк": "baseball bat",
     "бейзболни ръкавиц": "baseball glove",
     "дъски за сърф": "surfboard",
     "чаши за вино": "wine glass",
-    "растения в сакс": "potted plant",
-    "маси за хранене": "dining table",
     "плюшени мече": "teddy bear",
     "четки за зъби": "toothbrush",
 
@@ -86,10 +82,11 @@ general = {
     "мечк": "bear",
     "зебр": "zebra",
     "жираф": "giraffe",
-    "раниц": "backpack",
-    "чадър": "umbrella",
 
-    "чант": "handbag",
+    "раниц": "backpack",
+    "чант": "backpack",
+
+    "чадър": "umbrella",
     "торб": "handbag",
 
     "вратовръзк": "tie",
@@ -97,7 +94,10 @@ general = {
     "фризби": "frisbee",
     "ски": "skis",
     "сноуборд": "snowboard",
-    "спортна топка": "sports ball",
+
+    "спортна топк": "sports ball",
+    "топк":"sports ball",
+
     "хвърчил": "kite",
     "бейзболна бухалка": "baseball bat",
     "бейзболна ръкавица": "baseball glove",
@@ -134,12 +134,12 @@ general = {
     "торт": "cake",
     "стол": "chair",
     "диван": "couch",
-    "растение в саксия": "potted plant",
+    "растени": "potted plant",
 
     "легл": "bed",
     "креват": "bed",
 
-    "маса за хранене": "dining table",
+    "мас": "dining table",
     "тоалетн": "toilet",
 
     "телевизор": "tv",
@@ -148,13 +148,12 @@ general = {
     "лаптоп": "laptop",
     "мишк": "mouse",
 
-    "дистанционно на телевизор": "remote",
+    "дистанцион": "remote",
     "клавиатур": "keyboard",
 
-    "мобилен телефон": "cell phone",
     "телефон": "cell phone",
 
-    "микровълнова печк": "microwave",
+    "микровълнов": "microwave",
     "фурн": "oven",
     "тостер": "toaster",
     "мивк": "sink",
@@ -164,7 +163,7 @@ general = {
     "ваз": "vase",
     "ножиц": "scissors",
     "плюшено мече": "teddy bear",
-    "сешоар за коса": "hair drier",
+    "сешоар": "hair drier",
     "четка за зъби": "toothbrush",
 
     "all":"all",
