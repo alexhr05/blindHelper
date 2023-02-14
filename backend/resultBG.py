@@ -1,3 +1,5 @@
+from distance import distance
+
 translate = {
     "person":"човек",
     "bicycle":"колело",
@@ -253,7 +255,7 @@ def messageBG(arr, word):
             return "Няма намерени обекти"
         result += str(len(arr)) + " обекта намерени. "
         for det in arr:
-            result += one[det[0]] + " " + translate[det[0]] + " е "
+            result += one[det[0]] + " " + translate[det[0]] + " е " + distance(det[0], det[3], "bg") + " и е "
             result += pos(det)
     else:
         if len(arr) == 0:
@@ -262,10 +264,10 @@ def messageBG(arr, word):
         if br>1:
             result += str(br) + " " + plural[arr[0][0]] + " пред телефона. "
             for det in arr:
-                result += one[word]+" е "
+                result += one[word]+" е " + distance(det[0], det[3], "bg") + " и е "
                 result += pos(det)
         else:
-            result += one[word] + " " + translate[arr[0][0]] + " намерен "
+            result += one[word] + " " + translate[arr[0][0]] + " намерен " + distance(arr[0][0], arr[0][3], "bg") + " и "
             result += pos(arr[0])
 
     return result
