@@ -16,46 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
 
-        <Button
-            android:id="@+id/bTakePicture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Take picture" />
     </androidx.camera.view.PreviewView>
-
-    <Button
-        android:id="@+id/btnStopTakePicture"
-        style=" "
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Stop capture"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bTakePicture"
-        app:layout_constraintVertical_bias="0.838" />
-
-    <Button
-        android:id="@+id/btnStartTakingPhotos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:text="Start automatically"
-        app:layout_constraintBottom_toTopOf="@+id/bTakePicture"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.558"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btnShowImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="212dp"
-        android:text="Show image"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/editTextTextMultiLine"

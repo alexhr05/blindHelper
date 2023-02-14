@@ -1,8 +1,11 @@
 package com.example.saveimageinstorage;
 
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -12,76 +15,53 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
-import android.content.res.AssetManager;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.speech.tts.UtteranceProgressListener;
-
-import com.bumptech.glide.request.target.ImageViewTarget;
 import com.google.common.util.concurrent.ListenableFuture;
-
-import org.chromium.base.Callback;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.text.SimpleDateFormat;
 
 //AppCompatActivity
-public class CapturePictureAutomatically extends MainActivity{
-    private static final int REQUEST_CODE_SPEECH_INPUT = 1000;
+public class CapturePictureAutomatically extends AppCompatActivity {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
-    Button bTakePicture, btnStopTakePicture, btnStartTakingPhotos,btnShowImage;
     PreviewView previewView;
     private ImageCapture imageCapture;
     Handler handler;
     Runnable runnable;
-    Uri imageUri;
-    OutputStream outputStream;
-    ArrayList<Image> arrayList = new ArrayList<>();
-    String timestamp, serverHostName, volume, language, object;
-    TextToSpeech t1;
+    String object;
     ArrayList<String> result;
     Thread soundForListen;
     private int mode, intervalPhoto;
-    boolean isrecognizable = false;
     private SpeechRecognizer speechRecognizer;
     private Intent recognizerIntent;
     private TextToSpeech textToSpeech;
@@ -91,6 +71,10 @@ public class CapturePictureAutomatically extends MainActivity{
     boolean callListening;
     HttpURLConnection client;
     boolean recognize;
+    ActivityResultLauncher<String[]> mPermissionResultLauncher;
+    private boolean isAudioRecordPermissionGranted = false;
+    private boolean isCameraPermissionGranted = false;
+    private boolean isStoragePermissionGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +82,26 @@ public class CapturePictureAutomatically extends MainActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_capture_picture_automatically);
 
+        mPermissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+            @Override
+            public void onActivityResult(Map<String, Boolean> result) {
+                if(result.get(Manifest.permission.RECORD_AUDIO) != null){
+                    isAudioRecordPermissionGranted = Boolean.TRUE.equals(result.get(Manifest.permission.RECORD_AUDIO));
+                    log("Minava prez AudioRecord");
+                }
+
+                if(result.get(Manifest.permission.CAMERA) != null){
+                    isCameraPermissionGranted = Boolean.TRUE.equals(result.get(Manifest.permission.CAMERA));
+                    log("Minava prez Camera");
+                }
+
+                if(result.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) != null){
+                    log("Minava prez WriteExternal");
+                    isStoragePermissionGranted = Boolean.TRUE.equals(result.get(Manifest.permission.WRITE_EXTERNAL_STORAGE));
+                }
+            }
+        });
+        requestPermission();
         // Влиза в режим на слушане за специални думи
         recognize = true;
         intervalPhoto = 700;
@@ -116,10 +120,6 @@ public class CapturePictureAutomatically extends MainActivity{
                 "излез от програмата";
 
 
-        bTakePicture = findViewById(R.id.bTakePicture);
-        btnStopTakePicture = findViewById(R.id.btnStopTakePicture);
-        btnStartTakingPhotos = findViewById(R.id.btnStartTakingPhotos);
-        btnShowImage = findViewById(R.id.btnShowImage);
         editTextTextMultiLine = findViewById(R.id.editTextTextMultiLine);
 
         mediaPlayer = MediaPlayer.create(this, R.raw.beep);
@@ -157,7 +157,7 @@ public class CapturePictureAutomatically extends MainActivity{
             }
 
         }, getExecutor());
-        MainActivity obj = new MainActivity();
+//        MainActivity obj = new MainActivity();
 
 
         callListening = true;
@@ -168,21 +168,15 @@ public class CapturePictureAutomatically extends MainActivity{
             public void run(){
                 while(true){
                     if(mode==0){
-                        //Toast.makeText(obj, "VLizza v Thread", Toast.LENGTH_SHORT).show();
                         if(!textToSpeech.isSpeaking()){
-                            //soundForListen.interrupt();
-                            //soundForListen.stop();
                             mediaPlayer.start();
                             try {
                                 Thread.sleep(2000);
                                 mediaPlayer.setLooping(true);
 
-                                Thread.sleep(5000);
-                                //mediaPlayer.setLooping(false);
-                                //speakText();
-                                //Toast.makeText(obj, "Minava ot tuk", Toast.LENGTH_SHORT).show();
+                                Thread.sleep(2000);
+
                                 callListening = true;
-                                //startSpeechRecognition();
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -200,7 +194,7 @@ public class CapturePictureAutomatically extends MainActivity{
         runnable = new Runnable() {
             @Override
             public void run() {
-                // Do the task...
+                // Извиква се функцията през известно време
                 capturePhoto();
                 handler.postDelayed(this, intervalPhoto);
             }
@@ -208,8 +202,6 @@ public class CapturePictureAutomatically extends MainActivity{
         handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(runnable, intervalPhoto);
 
-        //soundForListen.start();
-        //mode = 1;
         if(callListening){
             mode = 1;
 
@@ -218,6 +210,41 @@ public class CapturePictureAutomatically extends MainActivity{
         }
 
     }
+    private void requestPermission(){
+        isAudioRecordPermissionGranted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED;
+        isCameraPermissionGranted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED;
+        isStoragePermissionGranted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED;
+        List<String> permissionRequest = new ArrayList<String>();
+
+        if(!isAudioRecordPermissionGranted){
+            permissionRequest.add(Manifest.permission.RECORD_AUDIO);
+        }
+
+        if(!isCameraPermissionGranted){
+            permissionRequest.add(Manifest.permission.CAMERA);
+        }
+
+        if(!isStoragePermissionGranted){
+            permissionRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        if(!permissionRequest.isEmpty()){
+            mPermissionResultLauncher.launch(permissionRequest.toArray(new String[0]));
+        }
+
+
+    }
+
+
     void log(String text) {
         editTextTextMultiLine.setText(text + " "+ editTextTextMultiLine.getText());
     }
@@ -439,11 +466,9 @@ public class CapturePictureAutomatically extends MainActivity{
 
         @Override
         protected String doInBackground(String... params) {
-            //String imageData = params[0];
 
             URL url = null;
             client = null;
-            OutputStream outputPost = null;
 
             // Прави се заявката само когато искаме да видим дали предметът, който търси може да
             // бъде разпознат и ако може се изпълнява само по-горната заявка
