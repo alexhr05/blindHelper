@@ -97,6 +97,7 @@ public class CapturePictureAutomatically extends MainActivity{
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_capture_picture_automatically);
+
         // Влиза в режим на слушане за специални думи
         recognize = true;
         intervalPhoto = 700;
@@ -143,7 +144,7 @@ public class CapturePictureAutomatically extends MainActivity{
             }
         });
 
-
+        // Осигуряване на "жизнения цикъл" на камерата
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
             try {
@@ -223,7 +224,7 @@ public class CapturePictureAutomatically extends MainActivity{
 
     private static class Command {
         public final String[] templates;
-        public String param;
+//        public String param;
 
         public Command(String[] templates) {
             this.templates = templates;
@@ -247,12 +248,12 @@ public class CapturePictureAutomatically extends MainActivity{
     private static final Command commandInstructions = new Command(new String[] { "инструкции", "помощ" });
     private static final Command commandFind = new Command(new String[] {"намери", "къде e" });
     private static final Command commandFindAll = new Command(new String[] { "навигирай" });
-    private static final Command[] commands = new Command[] {commandInstructions, commandFind};
+    private static final Command commandExit = new Command(new String[] { "излез от програмата" , "излез" });
 
 
     // Функция, която слуша за говор
     private void startSpeechRecognition() {
-        log("mode="+mode);
+        //log("mode="+mode);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         // Настройване на Intent за разпознаване на реч
         recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -267,7 +268,7 @@ public class CapturePictureAutomatically extends MainActivity{
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
-                //editTextTextMultiLine.setText("Pochva da slusha");
+
             }
 
             @Override
@@ -292,9 +293,7 @@ public class CapturePictureAutomatically extends MainActivity{
 
             @Override
             public void onError(int i) {
-
                 speechRecognizer.startListening(recognizerIntent);
-                //speechRecognizer.startListening(recognizerIntent);
             }
 
             // Когато свърши записа влиза в onResults и се анализират думите
@@ -313,12 +312,11 @@ public class CapturePictureAutomatically extends MainActivity{
 
                 }
                 // Ако е казано "инструкции", казва на човека какви функционалности има приложението
-                log("/" + lastCommand + "/");
-                //editTextTextMultiLine.setText("f"+ result.get(result.size() - 1));
+                //log("/" + lastCommand + "/");
                 if(commandInstructions.match(lastCommand)) {
                     captureRunning = false;
                     mode = 1;
-                    log("instructions");
+  //                  log("instructions");
                     speak(instrucionWords);
                 }
                 // Спира приложението да снима
@@ -336,12 +334,11 @@ public class CapturePictureAutomatically extends MainActivity{
                     object = "all";
                     recognize = false;
                 }
-
                 // Влиза тук когато потребителят иска да излезе от програмата
-                if(result.contains("излез от програмата")) {
-                    log("exit");
+                if(commandExit.match(lastCommand)){
                     System.exit(0);
                 }
+
                 speechRecognizer.startListening(recognizerIntent);
             }
 
@@ -411,16 +408,16 @@ public class CapturePictureAutomatically extends MainActivity{
 
                 return result;
             } catch (MalformedURLException e) {
-                log("ex2");
+//                log("ex2");
                 e.printStackTrace();
             } catch (ProtocolException e) {
-                log("ex3");
+//                log("ex3");
                 e.printStackTrace();
             } catch (IOException e) {
-                log("ex4");
+//                log("ex4");
                 e.printStackTrace();
             }
-            log("err");
+//            log("err");
             return "Грешка";
         }
 
@@ -428,7 +425,9 @@ public class CapturePictureAutomatically extends MainActivity{
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            log("заявка отговор");
+            if(recognize) return;
+
+//            log("заявка отговор");
             textToSpeech.speak(result, TextToSpeech.QUEUE_ADD,null);
             captureRunning = true;
             capturePhoto();
@@ -467,16 +466,16 @@ public class CapturePictureAutomatically extends MainActivity{
 
                 return result;
             } catch (MalformedURLException e) {
-                log("ex2");
+//                log("ex2");
                 e.printStackTrace();
             } catch (ProtocolException e) {
-                log("ex3");
+//                log("ex3");
                 e.printStackTrace();
             } catch (IOException e) {
-                log("ex4");
+//                log("ex4");
                 e.printStackTrace();
             }
-            log("err");
+//            log("err");
             return "ERROR";
         }
 
@@ -486,12 +485,12 @@ public class CapturePictureAutomatically extends MainActivity{
 
             // Ако може да се разпознава, връща отговор true, ако не може, връща отговор false
             if(result.contains("true")){
-                log("TRUE");
+                //log("TRUE");
                 captureRunning = true;
                 recognize = false;
                 speak("Обектът може да бъде разпознат.");
             }else if(result.contains("false")){
-                log("FALSE");
+                //log("FALSE");
                 captureRunning = false;
                 speak("Обектът не може да бъде разпознат. Опитайте да потърсите нещо друго");
             }
@@ -505,9 +504,9 @@ public class CapturePictureAutomatically extends MainActivity{
     // Влиза тук за да прави снимка, която директно се праща без да се записва на съответното устройство
     private void capturePhoto() {
         // Влиза когато се е върнал отговор от сървъра или първоначално, когато започва да снима
-        log(" "+captureRunning);
+        //log(" "+captureRunning);
         if(((textToSpeech != null) && textToSpeech.isSpeaking()) || !captureRunning) return;
-        log("c");
+        //log("c");
 
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         captureRunning = false;
@@ -525,7 +524,7 @@ public class CapturePictureAutomatically extends MainActivity{
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
                         captureRunning = true;
-                        log("onerror");
+                        //log("onerror");
                         Toast.makeText(CapturePictureAutomatically.this, "Error: " + exception.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
