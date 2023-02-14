@@ -266,6 +266,7 @@ general = {
 
     "tv": "tv",
     "television": "tv",
+    "monitor": "tv",
 
     "laptop": "laptop",
     "mouse": "mouse",
@@ -359,6 +360,7 @@ def detect(
                     xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # нормализирани xywh
                     current = [(names[int(cls)])] # името на дадения обект
                     current = get_position(xywh[0],xywh[1],current) # позицията на дадения обект
+                    current.append(xywh[2] * xywh[3]) # размера на обекта
                     responseArray.append(current) # масив със всеки разпознат обект и неговата позиция
 
                     # DEBUG
@@ -403,8 +405,8 @@ class MyServer(BaseHTTPRequestHandler):
             key = next((key for key in general if key in word), None)
             if key:
                 word = general[key]
-            if lang == "recognisable":
-                response = word
+            if lang == "recognizable":
+                response = "true"
             else:
                 # Декодиране на изпратената снимка
                 nparr = np.fromstring(post_body, np.uint8)
@@ -413,7 +415,7 @@ class MyServer(BaseHTTPRequestHandler):
                 # Генериране на отговор
                 response = detect(img,word,lang,webServer.device,webServer.model,webServer.stride,webServer.names,webServer.pt,webServer.imgsz,webServer.weights)
         else:
-            response = "False"
+            response = "false"
 
         # Връщане на отговор
         self.send_response(200)

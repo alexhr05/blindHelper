@@ -1,3 +1,5 @@
+from distance import distance
+
 def messageEN(arr, word):
     result = "There "
     if word == "all":
@@ -6,7 +8,7 @@ def messageEN(arr, word):
         if len(arr)>1:
             result += "are " + str(len(arr)) + " objects found. "
             for det in arr:
-                result += "One " + det[0] + " is "
+                result += "One " + det[0] + " is " + distance(det[0], det[3], "en") + " and is "
                 result += pos(det)
         else:
             result += "is 1 "
@@ -18,10 +20,10 @@ def messageEN(arr, word):
         if br>1:
             result += "are " + str(br) + " " + plural(arr[0][0]) + " infront of the phone. "
             for det in arr:
-                result += "One is "
+                result += "One is " + distance(det[0], det[3], "en") + " and is "
                 result += pos(det)
         else:
-            result += "is one " + arr[0][0] + " found "
+            result += "is one " + arr[0][0] + " found " + distance(arr[0][0], arr[0][3], "en") + " and "
             result += pos(arr[0])
 
     return result
