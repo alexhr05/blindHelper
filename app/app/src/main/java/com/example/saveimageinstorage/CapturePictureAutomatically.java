@@ -99,7 +99,7 @@ public class CapturePictureAutomatically extends MainActivity{
         setContentView(R.layout.activity_capture_picture_automatically);
         // Влиза в режим на слушане за специални думи
         recognize = true;
-        intervalPhoto = 100;
+        intervalPhoto = 700;
         mode = 0;
         introductoryWords = "Добър ден Стартира се програма блайнд хелпър. Какво искате да " +
                 "направя за вас. За да разберете повече, кажете думата Инструкции";
@@ -122,7 +122,6 @@ public class CapturePictureAutomatically extends MainActivity{
         editTextTextMultiLine = findViewById(R.id.editTextTextMultiLine);
 
         mediaPlayer = MediaPlayer.create(this, R.raw.beep);
-         // no need to call prepare(); create() does that for you
 
         previewView = findViewById(R.id.previewView);
 
@@ -202,8 +201,6 @@ public class CapturePictureAutomatically extends MainActivity{
             public void run() {
                 // Do the task...
                 capturePhoto();
-
-                //Toast.makeText(CapturePictureAutomatically.this, "Започна да прави снимки", Toast.LENGTH_SHORT).show();
                 handler.postDelayed(this, intervalPhoto);
             }
         };
@@ -217,7 +214,6 @@ public class CapturePictureAutomatically extends MainActivity{
 
             startSpeechRecognition();
 
-            //Toast.makeText(this, "VLizza vo govor", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -245,26 +241,20 @@ public class CapturePictureAutomatically extends MainActivity{
         }
     }
 
+    // Това са шаблони за какви команди могат да се разпознаят
+
     private static final Command commandStop = new Command(new String[] { "стоп", "спри", "стига" });
     private static final Command commandInstructions = new Command(new String[] { "инструкции", "помощ" });
     private static final Command commandFind = new Command(new String[] {"намери", "къде e" });
     private static final Command commandFindAll = new Command(new String[] { "навигирай" });
     private static final Command[] commands = new Command[] {commandInstructions, commandFind};
 
-//    private static Command findCommand(String text) {
-//        for(Command command : commands) {
-//            if(command.match(text)) return command;
-//        }
-//        return null;
-//    }
 
     // Функция, която слуша за говор
     private void startSpeechRecognition() {
         log("mode="+mode);
-        //Toast.makeText(this, "VLiza v startSpeechRecognition()", Toast.LENGTH_SHORT).show();
-        //Toast.makeText(this, "VLiza v startSpeechRecognition()", Toast.LENGTH_SHORT).show();
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-        //Set up the intent for speech recognition
+        // Настройване на Intent за разпознаване на реч
         recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
@@ -314,14 +304,15 @@ public class CapturePictureAutomatically extends MainActivity{
                 result = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if(result.size() == 0) return;
                 String lastCommand = result.get(result.size() - 1).toLowerCase();
-//                Command command = findCommand(lastCommand);
+
+                // Влиза тук когато се каже човекът каже, че иска да му се намери даден обект
                 if(commandFind.match(lastCommand)){
                     object = lastCommand;
                     recognize = true;
                     new CheckRecognize().execute(" ");
 
                 }
-
+                // Ако е казано "инструкции", казва на човека какви функционалности има приложението
                 log("/" + lastCommand + "/");
                 //editTextTextMultiLine.setText("f"+ result.get(result.size() - 1));
                 if(commandInstructions.match(lastCommand)) {
@@ -330,13 +321,15 @@ public class CapturePictureAutomatically extends MainActivity{
                     log("instructions");
                     speak(instrucionWords);
                 }
-
+                // Спира приложението да снима
                 if(commandStop.match(lastCommand)){
                     recognize = true;
                     captureRunning = false;
                     speak("Спряхте режима. Какво искате да направя за вас?");
                 }
 
+                // Влиза тук когато се каже думата навигация и започва да ориентира човека какво
+                // има пред него
                 if(commandFindAll.match(lastCommand)){
                     speak("Пускане на навигация.");
                     captureRunning = true;
@@ -344,61 +337,12 @@ public class CapturePictureAutomatically extends MainActivity{
                     recognize = false;
                 }
 
-
-                // Влиза, когато са се прочели въвеждащите думи
-//                if(mode == 1){
-//                    //mediaPlayer.start();
-//
-//                    //Toast.makeText(CapturePictureAutomatically.this, "Vliza v mode 1", Toast.LENGTH_SHORT).show();
-//
-//                    if(result.contains("инструкции")){
-//                        log("instructions");
-//                        //Toast.makeText(CapturePictureAutomatically.this, "vliza v proverka", Toast.LENGTH_SHORT).show();
-//                        speak(instrucionWords);
-//
-//                        soundForListen.interrupt();
-//                    }else if(result.contains("навигирай ме")){
-//                        log("navigate");
-//                        object = "all";
-//                        captureRunning = true;
-//
-//                        mode = 3;
-//
-//                    }else{
-//                        log("yes");
-//                        captureRunning = true;
-//                        mediaPlayer.setLooping(false);
-//                        mode = 2;
-//                    }
-//
-//                }else if(mode == 2){
-//                    //Toast.makeText(CapturePictureAutomatically.this, "V rejim tursene mode ="+mode, Toast.LENGTH_SHORT).show();
-//                     if(result.contains("спри търсене")){
-//                         log("stop1");
-//                         captureRunning = false;
-//                        speak("Спряхте режим търсене на обект. Какво искате да направя за вас?");
-//                        mediaPlayer.setLooping(true);
-//                        mode = 1;
-//
-//                    }
-//
-//                }else if(mode == 3){
-//                    //Toast.makeText(CapturePictureAutomatically.this, "V navigirane mode ="+mode, Toast.LENGTH_SHORT).show();
-//                    if(result.contains("спри навигиране")) {
-//                        log("stop2");
-//                        captureRunning = false;
-//                        mediaPlayer.setLooping(true);
-//                        speak("Спряхте режим навигиране. Какво искате да направя за вас?");
-//                        mode = 1;
-//                    }
-//
-//                }
+                // Влиза тук когато потребителят иска да излезе от програмата
                 if(result.contains("излез от програмата")) {
                     log("exit");
                     System.exit(0);
                 }
                 speechRecognizer.startListening(recognizerIntent);
-                //Toast.makeText(MainActivity.this, "Tova e rezultata: "+result.get(0), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -423,29 +367,6 @@ public class CapturePictureAutomatically extends MainActivity{
         speechRecognizer.destroy();
     }
 
-    private void speakText() {
-        // intent to show speech to text dialog
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Hi speak something");
-        // start intent
-
-        try{
-            // show dialog
-            startActivityForResult(intent,REQUEST_CODE_SPEECH_INPUT);
-        }catch (Exception e){
-
-            Toast.makeText(this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-
-
-    }
-
-
-
-
     private class NetworkRequestTask extends AsyncTask<byte[], Void, String> {
 
         @Override
@@ -455,6 +376,8 @@ public class CapturePictureAutomatically extends MainActivity{
             URL url = null;
             client = null;
             OutputStream outputPost = null;
+            // Прави заявка към сървъра със направената снимка и обектът, който иска да се намери или
+            // да знае сървъра, че иска да се навигира само човека
             try {
                 url = new URL("http://46.10.208.174:8033/?word="+object+"&lang=bg");//"http://46.10.208.174:8033?word=" + URLEncoder.encode("wefewf", StandardCharsets.UTF_8.name()));
 
@@ -467,25 +390,15 @@ public class CapturePictureAutomatically extends MainActivity{
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
                 Matrix matrix = new Matrix();
                 matrix.postRotate(90);
+
                 Bitmap rotatedBitmap = Bitmap.createBitmap(bitmapImage, 0, 0, bitmapImage.getWidth(), bitmapImage.getHeight(), matrix, true);
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+
                 byte[] imageBytes = byteArrayOutputStream.toByteArray();
 
                 outputPost.write(imageBytes);
                 outputPost.flush();
-                /*outputPost = new BufferedOutputStream(client.getOutputStream());
-
-                Bitmap bitmapImage = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-                Matrix matrix = new Matrix();
-                matrix.postRotate(90);
-                Bitmap rotatedBitmap = Bitmap.createBitmap(bitmapImage, 0, 0, bitmapImage.getWidth(), bitmapImage.getHeight(), matrix, true);
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-                byte[] imageBytes = byteArrayOutputStream.toByteArray();
-
-                outputPost.write(imageBytes);
-                outputPost.flush();*/
                 String result = "";
                 if (client.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()))) {
@@ -508,13 +421,17 @@ public class CapturePictureAutomatically extends MainActivity{
                 e.printStackTrace();
             }
             log("err");
-            return "ERROR";
+            return "Грешка";
         }
 
+        // Връща отговор от сървърът
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            log("заявка отговор");
             textToSpeech.speak(result, TextToSpeech.QUEUE_ADD,null);
+            captureRunning = true;
+            capturePhoto();
 
         }
     }
@@ -528,6 +445,9 @@ public class CapturePictureAutomatically extends MainActivity{
             URL url = null;
             client = null;
             OutputStream outputPost = null;
+
+            // Прави се заявката само когато искаме да видим дали предметът, който търси може да
+            // бъде разпознат и ако може се изпълнява само по-горната заявка
             try {
                 url = new URL("http://46.10.208.174:8033/?word="+object+"&lang=recognizable");//"http://46.10.208.174:8033?word=" + URLEncoder.encode("wefewf", StandardCharsets.UTF_8.name()));
 
@@ -564,6 +484,7 @@ public class CapturePictureAutomatically extends MainActivity{
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
+            // Ако може да се разпознава, връща отговор true, ако не може, връща отговор false
             if(result.contains("true")){
                 log("TRUE");
                 captureRunning = true;
@@ -580,12 +501,14 @@ public class CapturePictureAutomatically extends MainActivity{
 
 
     private boolean captureRunning = false;
-    //private boolean captureInProgress = false;
+
     // Влиза тук за да прави снимка, която директно се праща без да се записва на съответното устройство
     private void capturePhoto() {
         // Влиза когато се е върнал отговор от сървъра или първоначално, когато започва да снима
-        if(((textToSpeech != null) && textToSpeech.isSpeaking()) || !captureRunning) return; //|| captureInProgress) return;
+        log(" "+captureRunning);
+        if(((textToSpeech != null) && textToSpeech.isSpeaking()) || !captureRunning) return;
         log("c");
+
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         captureRunning = false;
         imageCapture.takePicture(
@@ -601,17 +524,14 @@ public class CapturePictureAutomatically extends MainActivity{
 
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
-                        captureRunning = false;
+                        captureRunning = true;
                         log("onerror");
-                        //Toast.makeText(MainActivity.this, "Error saving photo: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
                         Toast.makeText(CapturePictureAutomatically.this, "Error: " + exception.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
 
 
         );
-        //Toast.makeText(this, " " + imageCapture, Toast.LENGTH_LONG).show();
-
 
     }
 
