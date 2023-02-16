@@ -2,14 +2,23 @@ from distance import distance
 
 def messageEN(arr, word):
     result = "There "
+    objects = []
     if word == "all":
         if len(arr) == 0:
             return "No objects found"
         if len(arr)>1:
             result += "are " + str(len(arr)) + " objects found. "
             for det in arr:
-                result += "One " + det[0] + " is " + distance(det[0], det[3], "en") + " and is "
-                result += pos(det)
+                if det[0] in objects:
+                    continue
+                objects.append(det[0])
+                br = count(arr, det[0])
+                result += str(br) + " "
+                if br > 1:
+                    result += plural(det[0])
+                else:
+                    result += det[0]
+                result += ", "
         else:
             result += "is 1 "
             result += arr[0][0]

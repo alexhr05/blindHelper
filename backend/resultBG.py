@@ -250,13 +250,22 @@ plural = {
 
 def messageBG(arr, word):
     result = "Има "
+    objects = []
     if word == "all":
         if len(arr) == 0:
             return "Няма намерени обекти"
         result += str(len(arr)) + " обекта намерени. "
         for det in arr:
-            result += one[det[0]] + " " + translate[det[0]] + " е " + distance(det[0], det[3], "bg") + " и е "
-            result += pos(det)
+            if det[0] in objects:
+                continue
+            objects.append(det[0])
+            br = count(arr, det[0])
+            result += str(br) + " "
+            if br > 1:
+                result += plural[det[0]]
+            else:
+                result += translate[det[0]]
+            result += ", "
     else:
         if len(arr) == 0:
             return "Няма намерени " + plural[word]
