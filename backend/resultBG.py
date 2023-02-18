@@ -232,6 +232,8 @@ def messageBG(arr, word):
                 result += " вдясно, "
     else:
         if len(arr) == 0:
+            if word == "person":
+                return "Няма намерени хора"
             return "Няма намерени " + plural[word]
         br = count(arr, arr[0][0])
         if br>1:
