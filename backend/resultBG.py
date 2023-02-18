@@ -250,13 +250,39 @@ plural = {
 
 def messageBG(arr, word):
     result = "Има "
+    objects = []
     if word == "all":
         if len(arr) == 0:
             return "Няма намерени обекти"
         result += str(len(arr)) + " обекта намерени. "
         for det in arr:
-            result += one[det[0]] + " " + translate[det[0]] + " е " + distance(det[0], det[3], "bg") + " и е "
-            result += pos(det)
+            if det[0] in objects:
+                continue
+            objects.append(det[0])
+            brL = count(arr, det[0], "left")
+            brM = count(arr, det[0], "mid")
+            brR = count(arr, det[0], "right")
+            if brL>0:
+                result += str(brL) + " "
+                if brL>1:
+                    result += plural[det[0]]
+                else:
+                    result += translate[det[0]]
+                result += " вляво, "
+            if brM>0:
+                result += str(brM) + " "
+                if brM>1:
+                    result += plural[det[0]]
+                else:
+                    result += translate[det[0]]
+                result += " по средата, "
+            if brR>0:
+                result += str(brR) + " "
+                if brR>1:
+                    result += plural[det[0]]
+                else:
+                    result += translate[det[0]]
+                result += " вдясно, "
     else:
         if len(arr) == 0:
             return "Няма намерени " + plural[word]
@@ -272,11 +298,19 @@ def messageBG(arr, word):
 
     return result
 
-def count(arr, word):
+def count(arr, word, loc="all"):
     br = 0
     for det in arr:
         if det[0] == word:
-            br+=1
+            if loc == "left" and det[1]<=1:
+                br+=1
+            elif loc == "mid" and det[1]==2:
+                br += 1
+            elif loc == "right" and det[1]>=3:
+                br += 1
+            elif loc == "all":
+                br+=1
+
     return br
 
 def pos(det):
