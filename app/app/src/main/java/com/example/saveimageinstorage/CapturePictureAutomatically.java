@@ -17,6 +17,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -58,7 +59,7 @@ public class CapturePictureAutomatically extends AppCompatActivity {
     private ImageCapture imageCapture;
     Handler handler;
     Runnable runnable;
-    String object;
+    String object, language;
     ArrayList<String> result;
     Thread soundForListen;
     private int mode, intervalPhoto;
@@ -66,7 +67,7 @@ public class CapturePictureAutomatically extends AppCompatActivity {
     private Intent recognizerIntent;
     private TextToSpeech textToSpeech;
     MediaPlayer mediaPlayer;
-    EditText editTextTextMultiLine;
+//    EditText editTextTextMultiLine;
     String introductoryWords, instrucionWords;
     boolean callListening;
     HttpURLConnection client;
@@ -81,6 +82,7 @@ public class CapturePictureAutomatically extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_capture_picture_automatically);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         mPermissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
             @Override
@@ -120,7 +122,7 @@ public class CapturePictureAutomatically extends AppCompatActivity {
                 "излез от програмата";
 
 
-        editTextTextMultiLine = findViewById(R.id.editTextTextMultiLine);
+        //editTextTextMultiLine = findViewById(R.id.editTextTextMultiLine);
 
         mediaPlayer = MediaPlayer.create(this, R.raw.beep);
 
@@ -180,7 +182,6 @@ public class CapturePictureAutomatically extends AppCompatActivity {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-
 
                             mode = 1;
                         }
@@ -244,9 +245,8 @@ public class CapturePictureAutomatically extends AppCompatActivity {
 
     }
 
-
     void log(String text) {
-        editTextTextMultiLine.setText(text + " "+ editTextTextMultiLine.getText());
+        //editTextTextMultiLine.setText(text + " "+ editTextTextMultiLine.getText());
     }
 
     private static class Command {
@@ -264,19 +264,19 @@ public class CapturePictureAutomatically extends AppCompatActivity {
 
                     return true;
                 }
+
             }
             return false;
         }
     }
 
     // Това са шаблони за какви команди могат да се разпознаят
-
-    private static final Command commandStop = new Command(new String[] { "стоп", "спри", "стига" });
-    private static final Command commandInstructions = new Command(new String[] { "инструкции", "помощ" });
-    private static final Command commandFind = new Command(new String[] {"намери", "къде e" });
-    private static final Command commandFindAll = new Command(new String[] { "навигирай" });
-    private static final Command commandExit = new Command(new String[] { "излез от програмата" , "излез" });
-
+    private static final Command commandLanguage = new Command(new String[] { "смени език", " change language"});
+    private static final Command commandStop = new Command(new String[] { "стоп", "спри", "стига", "stop"});
+    private static final Command commandInstructions = new Command(new String[] { "инструкции", "помощ", "help", "instructions" });
+    private static final Command commandFind = new Command(new String[] {"намери", "къде e", "where", "find" });
+    private static final Command commandFindAll = new Command(new String[] { "навигирай", "navigate" });
+    private static final Command commandExit = new Command(new String[] { "излез от програмата" , "излез", "leave" });
 
     // Функция, която слуша за говор
     private void startSpeechRecognition() {
@@ -365,6 +365,19 @@ public class CapturePictureAutomatically extends AppCompatActivity {
                 if(commandExit.match(lastCommand)){
                     System.exit(0);
                 }
+                if(commandLanguage.match(lastCommand)){
+                    speak("");
+                    if(result.contains("български")){
+                        language = "bg";
+                    }else if(result.contains("български")){
+                        language = "en";
+                    }
+
+                }
+
+
+
+
 
                 speechRecognizer.startListening(recognizerIntent);
             }
@@ -403,7 +416,10 @@ public class CapturePictureAutomatically extends AppCompatActivity {
             // Прави заявка към сървъра със направената снимка и обектът, който иска да се намери или
             // да знае сървъра, че иска да се навигира само човека
             try {
-                url = new URL("http://46.10.208.174:8033/?word="+object+"&lang=bg");//"http://46.10.208.174:8033?word=" + URLEncoder.encode("wefewf", StandardCharsets.UTF_8.name()));
+                //https://4666-84-238-195-232.eu.ngrok.io/?word=person&lang=bg
+
+                //url = new URL("https://b835-84-238-195-232.eu.ngrok.io/?word="+object+"&lang=bg");
+                url = new URL("http://46.10.208.174:8033/?word=" + object + "&lang=bg");//"http://46.10.208.174:8033?word=" + URLEncoder.encode("wefewf", StandardCharsets.UTF_8.name()));
 
                 client = (HttpURLConnection) url.openConnection();
                 client.setRequestMethod("POST");
@@ -473,6 +489,7 @@ public class CapturePictureAutomatically extends AppCompatActivity {
             // Прави се заявката само когато искаме да видим дали предметът, който търси може да
             // бъде разпознат и ако може се изпълнява само по-горната заявка
             try {
+                //url = new URL("https://b835-84-238-195-232.eu.ngrok.io/?word="+object+"&lang=recognizable");//"http://46.10.208.174:8033?word=" + URLEncoder.encode("wefewf", StandardCharsets.UTF_8.name()));
                 url = new URL("http://46.10.208.174:8033/?word="+object+"&lang=recognizable");//"http://46.10.208.174:8033?word=" + URLEncoder.encode("wefewf", StandardCharsets.UTF_8.name()));
 
                 client = (HttpURLConnection) url.openConnection();

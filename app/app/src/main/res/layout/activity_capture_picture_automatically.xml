@@ -9,27 +9,13 @@
 
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
-        android:layout_width="391dp"
-        android:layout_height="453dp"
+        android:layout_width="409dp"
+        android:layout_height="725dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent">
 
     </androidx.camera.view.PreviewView>
-
-    <EditText
-        android:id="@+id/editTextTextMultiLine"
-        android:layout_width="300dp"
-        android:layout_height="150dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:minLines="10"
-        android:maxLines="10"
-        android:inputType="textMultiLine"
-        android:scrollbars="vertical"
-        android:text=""
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
