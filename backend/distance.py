@@ -1,5 +1,5 @@
 close = {
-    "person": 0.40,
+    "person": 0.24,
     "bicycle": 0.40,
     "car": 0.60,
     "motorcycle": 0.40,
@@ -23,7 +23,7 @@ close = {
     "bear": 0.65,
     "zebra": 0.35,
     "giraffe": 0.45,
-    "backpack": 0.20,
+    "backpack": 0.10,
     "umbrella": 0.15,
     "handbag": 0.20,
     "tie": 0.05,
@@ -38,7 +38,7 @@ close = {
     "skateboard": 0.20,
     "surfboard": 0.20,
     "tennis racket": 0.20,
-    "bottle" : 0.05,
+    "bottle" : 0.03,
     "wine glass": 0.05,
     "cup": 0.05,
     "fork": 0.05,
@@ -82,7 +82,7 @@ close = {
 }
 
 medium = {
-    "person": 0.20,
+    "person": 0.05,
     "bicycle": 0.20,
     "car": 0.30,
     "motorcycle": 0.20,
@@ -106,7 +106,7 @@ medium = {
     "bear": 0.325,
     "zebra": 0.175,
     "giraffe": 0.225,
-    "backpack": 0.10,
+    "backpack": 0.018,
     "umbrella": 0.075,
     "handbag": 0.10,
     "tie": 0.025,
@@ -121,7 +121,7 @@ medium = {
     "skateboard": 0.10,
     "surfboard": 0.10,
     "tennis racket": 0.10,
-    "bottle" : 0.025,
+    "bottle" : 0.0018,
     "wine glass": 0.025,
     "cup": 0.025,
     "fork": 0.025,
