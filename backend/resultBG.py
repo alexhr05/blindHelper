@@ -61,7 +61,7 @@ translate = {
     "couch":"диван",
     "potted plant":"растение в саксия",
     "bed":"легло",
-    "dining table":"маса за хранене",
+    "dining table":"маса",
     "toilet":"тоалетна",
     "tv":"телевизор",
     "laptop":"лаптоп",
@@ -82,91 +82,38 @@ translate = {
     "hair drier":"сешоар",
     "toothbrush":"четка за зъби",
 }
-one = {
-    "person":"Един",
-    "bicycle":"Едно",
-    "car":"Една",
-    "motorcycle":"Един",
-    "airplane":"Един",
-    "bus":"Един",
-    "train":"Един",
-    "truck":"Един",
-    "boat":"Една",
-    "traffic light":"Един",
-    "fire hydrant":"Един",
-    "stop sign":"Един",
-    "parking meter":"Един",
-    "bench":"Една",
-    "bird":"Една",
-    "cat":"Една",
-    "dog":"Едно",
-    "horse":"Един",
-    "sheep":"Една",
-    "cow":"Една",
-    "elephant":"Един",
-    "bear":"Една",
-    "zebra":"Една",
-    "giraffe":"Един",
-    "backpack":"Една",
-    "umbrella":"Един",
-    "handbag":"Една",
-    "tie":"Една",
-    "suitcase":"Един",
-    "frisbee":"Едно",
-    "skis":"Едни",
-    "snowboard":"Един",
-    "sports ball":"Една",
-    "kite":"Едно",
-    "baseball bat":"Една",
-    "baseball glove":"Една",
-    "skateboard":"Един",
-    "surfboard":"Една",
-    "tennis racket":"Една",
-    "bottle":"Една",
-    "wine glass":"Една",
-    "cup":"Една",
-    "fork":"Една",
-    "knife":"Един",
-    "spoon":"Една",
-    "bowl":"Една",
-    "banana":"Един",
-    "apple":"Една",
-    "sandwich":"Един",
-    "orange":"Един",
-    "broccoli":"Едно",
-    "carrot":"Един",
-    "hot dog":"Един",
-    "pizza":"Една",
-    "donut":"Един",
-    "cake":"Едно",
-    "chair":"Един",
-    "couch":"Един",
-    "potted plant":"Едно",
-    "bed":"Едно",
-    "dining table":"Една",
-    "toilet":"Една",
-    "tv":"Един",
-    "laptop":"Един",
-    "mouse":"Една",
-    "remote":"Едно",
-    "keyboard":"Една",
-    "cell phone":"Един",
-    "microwave":"Една",
-    "oven":"Една",
-    "toaster":"Един",
-    "sink":"Една",
-    "refrigerator":"Един",
-    "book":"Една",
-    "clock":"Един",
-    "vase":"Една",
-    "scissors":"Едни",
-    "teddy bear":"Едно",
-    "hair drier":"Един",
-    "toothbrush":"Една",
-}
+
+def rod(word):
+    words = word.split(" ")
+    lastChar = words[0][len(words[0])-1]
+    if(lastChar == "а") or (lastChar == "я"):
+        return 2
+    elif(lastChar == "о") or (lastChar == "е"):
+        return 3
+    else:
+        return 1
+
+def num(br, word):
+    word = translate[word]
+    if br > 2:
+        return str(br)
+    elif br == 1:
+        if rod(word) == 1:
+            return "Един"
+        elif rod(word) == 2:
+            return "Една"
+        else:
+            return "Едно"
+    elif br == 2:
+        if rod(word) == 1:
+            return "Два"
+        elif rod(word) == 2:
+            return "Две"
+        else:
+            return "Две"
 
 plural = {
-    "person":"хора",
+    "person":"човека",
     "bicycle":"колела",
     "car":"коли",
     "motorcycle":"мотоциклета",
@@ -226,7 +173,7 @@ plural = {
     "couch":"дивана",
     "potted plant":"растения в саксия",
     "bed":"легла",
-    "dining table":"маси за хранене",
+    "dining table":"маси",
     "toilet":"тоалетни",
     "tv":"телевизора",
     "laptop":"лаптопа",
@@ -263,21 +210,21 @@ def messageBG(arr, word):
             brM = count(arr, det[0], "mid")
             brR = count(arr, det[0], "right")
             if brL>0:
-                result += str(brL) + " "
+                result += str(num(brL,det[0])) + " "
                 if brL>1:
                     result += plural[det[0]]
                 else:
                     result += translate[det[0]]
                 result += " вляво, "
             if brM>0:
-                result += str(brM) + " "
+                result += str(num(brM,det[0])) + " "
                 if brM>1:
                     result += plural[det[0]]
                 else:
                     result += translate[det[0]]
                 result += " по средата, "
             if brR>0:
-                result += str(brR) + " "
+                result += str(num(brR,det[0])) + " "
                 if brR>1:
                     result += plural[det[0]]
                 else:
@@ -285,15 +232,17 @@ def messageBG(arr, word):
                 result += " вдясно, "
     else:
         if len(arr) == 0:
+            if word == "person":
+                return "Няма намерени хора"
             return "Няма намерени " + plural[word]
         br = count(arr, arr[0][0])
         if br>1:
             result += str(br) + " " + plural[arr[0][0]] + " пред телефона. "
             for det in arr:
-                result += one[word]+" е " + distance(det[0], det[3], "bg") + " и е "
+                result += str(num(1,det[0]))+" е " + distance(det[0], det[3], "bg") + " и е "
                 result += pos(det)
         else:
-            result += one[word] + " " + translate[arr[0][0]] + " намерен " + distance(arr[0][0], arr[0][3], "bg") + " и "
+            result += str(num(1,arr[0][0])) + " " + translate[arr[0][0]] + " намерен " + distance(arr[0][0], arr[0][3], "bg") + " и "
             result += pos(arr[0])
 
     return result

@@ -396,8 +396,8 @@ class MyServer(BaseHTTPRequestHandler):
 
         query = urlparse(self.path).query
         query_components = dict(qc.split("=") for qc in query.split("&"))
-        word = query_components["word"]
-        lang = query_components["lang"]
+        word = query_components["word"].lower()
+        lang = query_components["lang"].lower()
         word = urllib.parse.unquote(word) # декодиране на думите на български
 
         # Проверка дали обекта може да бъде разпознат
